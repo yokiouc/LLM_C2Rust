@@ -1,0 +1,22 @@
+[tool.c2rust]
+c2rust_bin = "c2rust"
+extra_args = []
+timeout_seconds = 600
+
+[tool.c2rust.treesitter]
+fallback_window_lines = 50
+max_bytes = 1048576
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["F"]
+
+[tool.mypy]
+python_version = "3.10"
+ignore_missing_imports = true
+no_implicit_optional = true
+warn_return_any = false
+warn_unused_ignores = true

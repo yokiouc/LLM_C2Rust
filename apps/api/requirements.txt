@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+psycopg[binary]
+typer
+pytest
+httpx
+tqdm
+pyyaml
+ruff
+mypy

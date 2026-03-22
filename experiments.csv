@@ -1,0 +1,5 @@
+project,snapshot,commit,run_id,mode,compile_ok,test_ok,final_status,diagnose_issue_count,unsafe_blocks,raw_ptr_count,unsafe_api_count,iteration_count,patch_rounds,rollback_count,total_ms,retrieve_ms,generate_ms,execute_ms,primary_error_kind,final_stop_reason
+pilot0_demo,1,pilot0_v1,be7bddc0-d210-48c0-b4a3-f338cd5ce8e9,baseline,0,0,FAILED,1,0,0,0,1,0,0,23,0,0,22,compile_fail,compile_fail
+pilot0_demo,1,pilot0_v1,fb521a3a-0c71-406b-9525-ff802d9de791,enhanced,0,0,FAILED,1,0,0,0,2,2,2,278,257,3,10,compile_fail,no_progress
+pilot1_small,2,pilot1_v1,ae864bb9-a45f-4789-a88e-e3ca45dfc42b,baseline,0,0,FAILED,1,0,0,0,1,0,0,17,0,0,17,compile_fail,compile_fail
+pilot1_small,2,pilot1_v1,ae0e3295-1570-41bf-8b9b-19109d5591c8,enhanced,1,1,OK,0,0,0,0,1,1,0,135,109,2,17,,success

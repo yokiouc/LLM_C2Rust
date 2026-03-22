@@ -1,0 +1,5 @@
+{
+  "exit_code": 101,
+  "stdout": "running 1 test\n",
+  "stderr": "tests/foo.rs:42:1 : assertion failed: left != right\n"
+}

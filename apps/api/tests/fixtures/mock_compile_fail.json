@@ -1,0 +1,5 @@
+{
+  "exit_code": 101,
+  "stdout": "",
+  "stderr": "src/lib.rs:10:5 E0502: cannot borrow `x` as mutable because it is also borrowed as immutable\n"
+}

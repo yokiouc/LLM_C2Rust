@@ -1,0 +1,5 @@
+{
+  "exit_code": 0,
+  "stdout": "",
+  "stderr": "src/main.rs:3:1 warning: unused variable: `x`\n"
+}

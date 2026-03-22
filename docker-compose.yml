@@ -1,0 +1,15 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: postgresql://root:root@host.docker.internal:5432/postgres
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./apps/api:/app:rw
+      - ./retrieval:/app/retrieval:rw
+      - ./Makefile:/app/Makefile:ro
+    ports:
+      - "8000:8000"
