@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+env/
+
+# Rust
+target/
+
+# Build / cache
+build/
+dist/
+.cache/
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Large model / data files
+*.pt
+*.pth
+*.bin
+*.ckpt
+*.safetensors
+*.pkl
+*.npy
+*.npz
+
+# Coverage / test cache
+.coverage
+pytest_cache/
+.mypy_cache/
+
+# Environment variables / secrets
+.env
+.env.*
