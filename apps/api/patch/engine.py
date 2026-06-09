@@ -1,3 +1,18 @@
+"""Patch convergence engine — HELPER module.
+
+This module provides standalone convergence iteration for patch generation.
+It is NOT the primary repair loop. The primary repair loop is the FSM in
+packages/repair/agent/fsm.py.
+
+This module is retained for:
+  - CLI `converge_patch` command
+  - Standalone offline patch iteration (without full FSM)
+  - Backward compatibility with existing tests
+
+The FSM delegates to packages.repair.generator / packages.runner.validator /
+packages.repair.patch_engine for the same underlying operations.
+"""
+
 import hashlib
 import json
 import os

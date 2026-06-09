@@ -1,0 +1,7 @@
+[package]
+name = "sw_01_c2rust_style_buffer_workspace"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"

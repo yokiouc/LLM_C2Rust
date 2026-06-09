@@ -41,14 +41,22 @@ def test_template_edit_provider_changes_line():
             "4. 输出格式必须为统一 diff（unified diff），且只包含 `@@` 块",
             "5. 若无法生成符合上述约束的补丁，返回空 diff 并给出原因",
             "",
-            '{"file":"src/lib.rs","slice":"pub fn demo() {\\n    let x = 1;\\n}"}',
+            (
+                '{"recommended_boundary":{"file":"src/lib.rs","start_line":1,"end_line":4},'
+                '"items":[{"kind":"rust_function_slice","excerpt":'
+                '"pub fn demo(values: &[i32]) -> Option<i32> {\\n'
+                '    let ptr = values.as_ptr();\\n'
+                '    unsafe { Some(*ptr) }\\n'
+                '}","meta":{"file":"src/lib.rs"}}]}'
+            ),
             "",
             "f",
         ]
     )
     diff = TemplateEditProvider().generate(prompt)
-    assert "-    let x = 1;" in diff
-    assert "+    let x = 1; // patched" in diff
+    assert "-    let ptr = values.as_ptr();" in diff
+    assert "+    values.first().copied()" in diff
+    assert "// patched" not in diff
 
 
 def test_openai_provider_without_key_returns_empty(monkeypatch):

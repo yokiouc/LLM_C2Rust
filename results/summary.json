@@ -1,0 +1,189 @@
+{
+  "total_runs": 18,
+  "baseline_runs": 6,
+  "enhanced_runs": 12,
+  "successful": 13,
+  "failed": 5,
+  "runs": [
+    {
+      "run_id": "2bbb85a5-0b67-4baf-8a66-6eed1da58543",
+      "project": "workspace://C:\\Users\\wenzhii\\Desktop\\哈基琳\\C2Rust\\C2Rust\\results\\stage9b3_final_workspaces\\CF-01_baseline_1777562776401",
+      "mode": "baseline",
+      "status": "OK",
+      "unsafe_delta": 0,
+      "raw_ptr_delta": 0,
+      "iterations": 0,
+      "duration_ms": 1766
+    },
+    {
+      "run_id": "d8585247-22e6-4dbc-81aa-de93ea801dd7",
+      "project": "workspace://C:\\Users\\wenzhii\\Desktop\\哈基琳\\C2Rust\\C2Rust\\results\\stage9b3_final_workspaces\\CF-01_template_1777562778472",
+      "mode": "enhanced",
+      "status": "OK",
+      "unsafe_delta": -1,
+      "raw_ptr_delta": 0,
+      "iterations": 1,
+      "duration_ms": 1838
+    },
+    {
+      "run_id": "225ccfbe-fa93-4305-a708-1b114362238f",
+      "project": "workspace://C:\\Users\\wenzhii\\Desktop\\哈基琳\\C2Rust\\C2Rust\\results\\stage9b3_final_workspaces\\CF-01_llm_1777562780650",
+      "mode": "enhanced",
+      "status": "OK",
+      "unsafe_delta": -1,
+      "raw_ptr_delta": 0,
+      "iterations": 1,
+      "duration_ms": 8222
+    },
+    {
+      "run_id": "f3a1ddb3-b310-4ea7-9eaf-7523f8f794cb",
+      "project": "workspace://C:\\Users\\wenzhii\\Desktop\\哈基琳\\C2Rust\\C2Rust\\results\\stage9b3_final_workspaces\\CF-02_baseline_1777562789242",
+      "mode": "baseline",
+      "status": "OK",
+      "unsafe_delta": 0,
+      "raw_ptr_delta": 0,
+      "iterations": 0,
+      "duration_ms": 632
+    },
+    {
+      "run_id": "63c6607b-b62b-4e53-9324-4d364fa14361",
+      "project": "workspace://C:\\Users\\wenzhii\\Desktop\\哈基琳\\C2Rust\\C2Rust\\results\\stage9b3_final_workspaces\\CF-02_template_1777562790213",
+      "mode": "enhanced",
+      "status": "OK",
+      "unsafe_delta": -1,
+      "raw_ptr_delta": 0,
+      "iterations": 1,
+      "duration_ms": 1910
+    },
+    {
+      "run_id": "61f143dc-1b4b-4607-b3ba-9faf385a359e",
+      "project": "workspace://C:\\Users\\wenzhii\\Desktop\\哈基琳\\C2Rust\\C2Rust\\results\\stage9b3_final_workspaces\\CF-02_llm_1777562792426",
+      "mode": "enhanced",
+      "status": "OK",
+      "unsafe_delta": -1,
+      "raw_ptr_delta": 0,
+      "iterations": 1,
+      "duration_ms": 6331
+    },
+    {
+      "run_id": "a61a7789-d0f6-4639-8a05-be51a98668ec",
+      "project": "workspace://C:\\Users\\wenzhii\\Desktop\\哈基琳\\C2Rust\\C2Rust\\results\\stage9b3_final_workspaces\\CF-03_baseline_1777562799060",
+      "mode": "baseline",
+      "status": "OK",
+      "unsafe_delta": 0,
+      "raw_ptr_delta": 0,
+      "iterations": 0,
+      "duration_ms": 624
+    },
+    {
+      "run_id": "c6468447-b698-41b9-8cc5-8ddc78768755",
+      "project": "workspace://C:\\Users\\wenzhii\\Desktop\\哈基琳\\C2Rust\\C2Rust\\results\\stage9b3_final_workspaces\\CF-03_template_1777562799958",
+      "mode": "enhanced",
+      "status": "FAILED",
+      "unsafe_delta": 0,
+      "raw_ptr_delta": 0,
+      "iterations": 2,
+      "duration_ms": 294
+    },
+    {
+      "run_id": "14e973ed-644a-4b4e-8f14-cdcd0ff95e33",
+      "project": "workspace://C:\\Users\\wenzhii\\Desktop\\哈基琳\\C2Rust\\C2Rust\\results\\stage9b3_final_workspaces\\CF-03_llm_1777562800521",
+      "mode": "enhanced",
+      "status": "OK",
+      "unsafe_delta": -1,
+      "raw_ptr_delta": 0,
+      "iterations": 2,
+      "duration_ms": 14223
+    },
+    {
+      "run_id": "a743fd53-b207-44a3-8859-789d691c3902",
+      "project": "workspace://C:\\Users\\wenzhii\\Desktop\\哈基琳\\C2Rust\\C2Rust\\results\\stage9b3_final_workspaces\\SW-01_baseline_1777562815054",
+      "mode": "baseline",
+      "status": "OK",
+      "unsafe_delta": 0,
+      "raw_ptr_delta": 0,
+      "iterations": 0,
+      "duration_ms": 693
+    },
+    {
+      "run_id": "1674b1b0-70be-40e9-8eb7-81bc876be992",
+      "project": "workspace://C:\\Users\\wenzhii\\Desktop\\哈基琳\\C2Rust\\C2Rust\\results\\stage9b3_final_workspaces\\SW-01_template_1777562816072",
+      "mode": "enhanced",
+      "status": "FAILED",
+      "unsafe_delta": 0,
+      "raw_ptr_delta": 0,
+      "iterations": 2,
+      "duration_ms": 320
+    },
+    {
+      "run_id": "cbd06a3a-2db0-4427-927d-71cacb684b11",
+      "project": "workspace://C:\\Users\\wenzhii\\Desktop\\哈基琳\\C2Rust\\C2Rust\\results\\stage9b3_final_workspaces\\SW-01_llm_1777562816757",
+      "mode": "enhanced",
+      "status": "OK",
+      "unsafe_delta": -1,
+      "raw_ptr_delta": 0,
+      "iterations": 1,
+      "duration_ms": 7386
+    },
+    {
+      "run_id": "c0956794-a838-4420-b3f6-e4be958a54c2",
+      "project": "workspace://C:\\Users\\wenzhii\\Desktop\\哈基琳\\C2Rust\\C2Rust\\results\\stage9b3_final_workspaces\\SW-03_baseline_1777562824426",
+      "mode": "baseline",
+      "status": "OK",
+      "unsafe_delta": 0,
+      "raw_ptr_delta": 0,
+      "iterations": 0,
+      "duration_ms": 645
+    },
+    {
+      "run_id": "838b21d6-36f7-4cf4-82fa-b3f29084c880",
+      "project": "workspace://C:\\Users\\wenzhii\\Desktop\\哈基琳\\C2Rust\\C2Rust\\results\\stage9b3_final_workspaces\\SW-03_template_1777562825383",
+      "mode": "enhanced",
+      "status": "FAILED",
+      "unsafe_delta": 0,
+      "raw_ptr_delta": 0,
+      "iterations": 2,
+      "duration_ms": 302
+    },
+    {
+      "run_id": "bcd76169-0f13-41a0-91ea-266cccba4a11",
+      "project": "workspace://C:\\Users\\wenzhii\\Desktop\\哈基琳\\C2Rust\\C2Rust\\results\\stage9b3_final_workspaces\\SW-03_llm_1777562826005",
+      "mode": "enhanced",
+      "status": "FAILED",
+      "unsafe_delta": 0,
+      "raw_ptr_delta": 0,
+      "iterations": 2,
+      "duration_ms": 11381
+    },
+    {
+      "run_id": "1d60bcf2-1c8b-411c-b38f-1fa4d29957d2",
+      "project": "workspace://C:\\Users\\wenzhii\\Desktop\\哈基琳\\C2Rust\\C2Rust\\results\\stage9b3_final_workspaces\\SW-04_baseline_1777562837714",
+      "mode": "baseline",
+      "status": "OK",
+      "unsafe_delta": 0,
+      "raw_ptr_delta": 0,
+      "iterations": 0,
+      "duration_ms": 739
+    },
+    {
+      "run_id": "98ab857e-7153-49a2-8167-b4868b5abc93",
+      "project": "workspace://C:\\Users\\wenzhii\\Desktop\\哈基琳\\C2Rust\\C2Rust\\results\\stage9b3_final_workspaces\\SW-04_template_1777562838769",
+      "mode": "enhanced",
+      "status": "FAILED",
+      "unsafe_delta": 0,
+      "raw_ptr_delta": 0,
+      "iterations": 2,
+      "duration_ms": 282
+    },
+    {
+      "run_id": "25c97630-3756-48d1-8220-f685aae60046",
+      "project": "workspace://C:\\Users\\wenzhii\\Desktop\\哈基琳\\C2Rust\\C2Rust\\results\\stage9b3_final_workspaces\\SW-04_llm_1777562839387",
+      "mode": "enhanced",
+      "status": "OK",
+      "unsafe_delta": -1,
+      "raw_ptr_delta": 0,
+      "iterations": 1,
+      "duration_ms": 7148
+    }
+  ]
+}

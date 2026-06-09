@@ -73,4 +73,32 @@ python scripts/export_experiments_csv.py --out experiments.csv --run-id <run_id1
 - 失败解释：`primary_error_kind`、`final_stop_reason`
 
 注意：安全性指标目前用“朴素字符串统计”近似（本科口径），用于小规模实验与趋势展示。
+## Stage 8.5 formal experiment notes
+
+Before formal Stage 9 experiments, use a clean database or export only the
+selected run ids. Validation/e2e smoke runs can otherwise be mixed into paper
+tables.
+
+Recommended clean run:
+
+```bash
+python scripts/run_pilots.py --api http://localhost:8000 --out experiments.csv --use-v2 --runner-mode real
+python scripts/export_experiments_csv.py --out experiments.csv --run-id <baseline_id> --run-id <enhanced_id>
+python scripts/export_paper_tables.py --out results/ --run-id <baseline_id> --run-id <enhanced_id>
+```
+
+Runner mode:
+
+- `RUNNER_MODE=mock` is acceptable for demo and CI smoke validation.
+- Formal experiments should use `--runner-mode real` or payload env
+  `{"RUNNER_MODE": "real"}` so build/test/clippy results come from cargo.
+- If `--runner-mode` is omitted, `scripts/run_pilots.py` defaults to `mock`
+  for reproducible smoke tests.
+
+Export isolation:
+
+- `scripts/export_experiments_csv.py` supports repeated `--run-id`.
+- `scripts/export_paper_tables.py` supports repeated `--run-id`.
+- If run ids are not specified, both exporters read existing database runs;
+  therefore clean the database before formal runs or pass explicit run ids.
 

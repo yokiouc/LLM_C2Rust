@@ -15,7 +15,7 @@ def _dsn() -> str:
 
 def test_lexical_search_topn_and_latency():
     dsn = _dsn()
-    root_dir = Path(__file__).resolve().parents[1]
+    root_dir = Path(__file__).resolve().parents[3]
     sql_path = root_dir / "retrieval" / "sql" / "lexical_search.sql"
 
     with open(sql_path, "r", encoding="utf-8") as f:

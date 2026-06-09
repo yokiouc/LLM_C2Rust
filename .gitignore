@@ -41,9 +41,116 @@ Thumbs.db
 
 # Coverage / test cache
 .coverage
-pytest_cache/
+.pytest_cache/
 .mypy_cache/
 
 # Environment variables / secrets
 .env
 .env.*
+# Node / Next.js
+node_modules/
+.next/
+out/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Python test/cache
+.pytest_cache/
+.ruff_cache/
+htmlcov/
+
+# Rust / Cargo
+Cargo.lock
+# 如果你的 Rust workspace 是应用项目，Cargo.lock 可以保留；
+# 如果只是实验库或临时 workspace，可忽略。你不确定的话，先不要忽略 Cargo.lock。
+
+# Docker / local database
+*.dump
+*.backup
+*.bak
+*.sql.gz
+*.sqlite
+*.sqlite3
+*.db
+postgres-data/
+pgdata/
+docker-data/
+
+# Local temporary experiment workspaces
+.tmp_stage*/
+.tmp_*/
+tmp/
+temp/
+results/tmp/
+experiments/tmp/
+
+# Local run artifacts / generated reports that are not formal results
+results/*.log
+results/*smoke*.json
+results/*demo*.json
+results/*uvicorn*.out*
+results/*uvicorn*.log*
+
+# API keys / credentials
+*.key
+*.pem
+*.crt
+*.cert
+*.token
+credentials.json
+secrets.json
+
+# VS Code local settings but keep recommended extensions if needed
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.example.json
+
+# Large archives / media
+*.zip
+*.tar
+*.tar.gz
+*.7z
+*.rar
+*.mp4
+*.mov
+*.avi
+*.mkv
+
+# Generated frontend build artifacts
+apps/web/.next/
+apps/web/node_modules/
+apps/web/out/
+
+# Generated backend/runtime cache
+apps/api/__pycache__/
+apps/api/.pytest_cache/
+
+# Local demo runtime data
+demo_assets/screenshots/
+demo_assets/*.mp4
+# Generated experiment workspaces / temporary runs
+results/*workspaces*/
+results/*_workspaces/
+results/stage9b31_smoke_workspaces/
+results/stage9b32_smoke_workspaces/
+results/stage9b3_workspaces/
+results/stage9b3_final_workspaces/
+results/stage9b3_probe_cf01/
+
+# Smoke / probe intermediate outputs
+results/*smoke*.json
+results/*probe*.json
+results/stage9b26_*.json
+results/stage9b281_*.json
+results/stage9b282_*.json
+results/stage9b_failure_analysis.json
+results/stage9b_run_ids.json
+results/stage9b_run_summary.json
+
+# Demo output json in repo root
+baseline_demo.out.json
+enhanced_demo.out.json
+stage85_baseline_demo.out.json
+stage85_enhanced_demo.out.json

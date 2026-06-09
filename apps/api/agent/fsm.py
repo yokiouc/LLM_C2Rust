@@ -1,3 +1,12 @@
+"""Legacy FSM implementation.
+
+This file preserves the original run_fsm() for backward compatibility with
+existing tests and demo/pilot scripts. The new FSM engine lives in
+packages/repair/agent/fsm.py and is available as run_fsm_v2().
+
+Phase 6 will switch the API endpoint to use the new engine.
+"""
+
 import hashlib
 import json
 import re
@@ -802,3 +811,18 @@ def run_fsm(context: dict) -> RunRecord:
             cur.execute("SELECT run_id, status FROM agent_runs WHERE run_id = %s;", (run_id,))
             row = cur.fetchone()
     return RunRecord(run_id=str(row["run_id"]), status=str(row["status"]))
+
+
+# ---------------------------------------------------------------------------
+# V2 FSM entry point (new engine from packages/)
+# ---------------------------------------------------------------------------
+
+def run_fsm_v2(context: dict) -> RunRecord:
+    """Run the new packages-based FSM engine.
+
+    Same signature as run_fsm() but uses the refactored state machine
+    from packages/repair/agent/fsm.py.
+    """
+    from packages.repair.agent.fsm import run_fsm as _new_run_fsm
+    result = _new_run_fsm(context)
+    return RunRecord(run_id=result.run_id, status=result.status)

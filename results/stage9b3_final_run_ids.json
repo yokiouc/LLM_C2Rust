@@ -1,0 +1,32 @@
+{
+  "CF-01": {
+    "baseline": "2bbb85a5-0b67-4baf-8a66-6eed1da58543",
+    "template": "d8585247-22e6-4dbc-81aa-de93ea801dd7",
+    "llm": "225ccfbe-fa93-4305-a708-1b114362238f"
+  },
+  "CF-02": {
+    "baseline": "f3a1ddb3-b310-4ea7-9eaf-7523f8f794cb",
+    "template": "63c6607b-b62b-4e53-9324-4d364fa14361",
+    "llm": "61f143dc-1b4b-4607-b3ba-9faf385a359e"
+  },
+  "CF-03": {
+    "baseline": "a61a7789-d0f6-4639-8a05-be51a98668ec",
+    "template": "c6468447-b698-41b9-8cc5-8ddc78768755",
+    "llm": "14e973ed-644a-4b4e-8f14-cdcd0ff95e33"
+  },
+  "SW-01": {
+    "baseline": "a743fd53-b207-44a3-8859-789d691c3902",
+    "template": "1674b1b0-70be-40e9-8eb7-81bc876be992",
+    "llm": "cbd06a3a-2db0-4427-927d-71cacb684b11"
+  },
+  "SW-03": {
+    "baseline": "c0956794-a838-4420-b3f6-e4be958a54c2",
+    "template": "838b21d6-36f7-4cf4-82fa-b3f29084c880",
+    "llm": "bcd76169-0f13-41a0-91ea-266cccba4a11"
+  },
+  "SW-04": {
+    "baseline": "1d60bcf2-1c8b-411c-b38f-1fa4d29957d2",
+    "template": "98ab857e-7153-49a2-8167-b4868b5abc93",
+    "llm": "25c97630-3756-48d1-8220-f685aae60046"
+  }
+}

@@ -1,11 +1,19 @@
+"""C2Rust Repair System API.
+
+Feature flags:
+  USE_FSM_V2=true  — route /agent/run through the new packages-based FSM engine
+"""
+
 import json
 import logging
+import os
 import time
 from typing import Any
 
 import psycopg
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from psycopg.errors import CheckViolation, ForeignKeyViolation, UniqueViolation
@@ -16,10 +24,21 @@ from db import connect
 from retrieval.service import hybrid_retrieve_evidence
 from agent.fsm import run_fsm
 
+# Feature flag: use new FSM engine
+USE_FSM_V2 = os.getenv("USE_FSM_V2", "false").strip().lower() in ("1", "true", "yes")
+
 logger = logging.getLogger("c2rust_api")
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 
-app = FastAPI()
+app = FastAPI(title="C2Rust Repair System", version="0.6.0")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 def json_error(*, status_code: int, error: str, code: str):
@@ -244,25 +263,7 @@ def post_retrieve(body: RetrieveIn):
 @app.post("/agent/run", status_code=201)
 def post_agent_run(body: AgentRunIn):
     try:
-        rec = run_fsm(
-            {
-                "snapshot_id": body.snapshot_id,
-                "workspace_path": body.workspace_path,
-                "task_description": body.task_description,
-                "repo_url": body.repo_url,
-                "ref": body.ref,
-                "mode": body.mode,
-                "cmd": body.cmd,
-                "timeout": body.timeout,
-                "env": body.env,
-                "filters": body.filters,
-                "top_k": body.top_k,
-                "retrieval_model_id": body.retrieval_model_id,
-                "patch_backend": body.patch_backend,
-                "max_iters": body.max_iters,
-                "no_progress_limit": body.no_progress_limit,
-            }
-        )
+        rec = _run_fsm_dispatch(body)
         return {"run_id": rec.run_id, "status": rec.status}
     except Exception as e:
         if str(e) == "run_lock_not_acquired":
@@ -429,3 +430,327 @@ def get_run(run_id: str):
         "summary": summary,
         "created_at": run["created_at"],
     }
+
+
+# =========================================================================
+# V2 endpoints — packages-based FSM and new query APIs
+# =========================================================================
+
+def _run_fsm_dispatch(body: AgentRunIn):
+    """Dispatch to legacy or v2 FSM based on feature flag."""
+    context = {
+        "snapshot_id": body.snapshot_id,
+        "workspace_path": body.workspace_path,
+        "task_description": body.task_description,
+        "repo_url": body.repo_url,
+        "ref": body.ref,
+        "mode": body.mode,
+        "cmd": body.cmd,
+        "timeout": body.timeout,
+        "env": body.env,
+        "filters": body.filters,
+        "top_k": body.top_k,
+        "retrieval_model_id": body.retrieval_model_id,
+        "patch_backend": body.patch_backend,
+        "max_iters": body.max_iters,
+        "no_progress_limit": body.no_progress_limit,
+    }
+    if USE_FSM_V2:
+        from agent.fsm import run_fsm_v2
+        return run_fsm_v2(context)
+    return run_fsm(context)
+
+
+@app.post("/agent/run_v2", status_code=201)
+def post_agent_run_v2(body: AgentRunIn):
+    """Run repair agent using the new packages-based FSM engine."""
+    try:
+        from agent.fsm import run_fsm_v2
+        context = {
+            "snapshot_id": body.snapshot_id,
+            "workspace_path": body.workspace_path,
+            "task_description": body.task_description,
+            "repo_url": body.repo_url,
+            "ref": body.ref,
+            "mode": body.mode,
+            "cmd": body.cmd,
+            "timeout": body.timeout,
+            "env": body.env,
+            "filters": body.filters,
+            "top_k": body.top_k,
+            "retrieval_model_id": body.retrieval_model_id,
+            "patch_backend": body.patch_backend,
+            "max_iters": body.max_iters,
+            "no_progress_limit": body.no_progress_limit,
+        }
+        rec = run_fsm_v2(context)
+        return {"run_id": rec.run_id, "status": rec.status}
+    except Exception as e:
+        if str(e) == "run_lock_not_acquired":
+            return json_error(status_code=409, error="run_locked", code="conflict")
+        logger.exception(json.dumps({"event": "error", "endpoint": "agent_run_v2"}))
+        return json_error(status_code=500, error="agent_run_failed", code="internal_error")
+
+
+@app.get("/runs/{run_id}/status")
+def get_run_status(run_id: str):
+    """Get run state, iteration count, and progress score."""
+    with connect() as conn:
+        with conn.cursor(row_factory=psycopg.rows.dict_row) as cur:
+            cur.execute(
+                "SELECT run_id, status, created_at, updated_at FROM agent_runs WHERE run_id = %s;",
+                (run_id,),
+            )
+            run = cur.fetchone()
+        if not run:
+            return json_error(status_code=404, error="not_found", code="not_found")
+
+        with conn.cursor(row_factory=psycopg.rows.dict_row) as cur:
+            cur.execute("SELECT key, value_json FROM metrics WHERE run_id = %s;", (run_id,))
+            metric_rows = cur.fetchall()
+
+    metrics = {str(r["key"]): r["value_json"] for r in (metric_rows or [])}
+    return {
+        "run_id": run["run_id"],
+        "status": run["status"],
+        "iteration_count": metrics.get("iteration_count"),
+        "final_status": metrics.get("final_status"),
+        "final_stop_reason": metrics.get("final_stop_reason"),
+        "progress_score_history": metrics.get("progress_score_history", []),
+        "rollback_count": metrics.get("rollback_count"),
+        "total_ms": metrics.get("total_ms"),
+        "created_at": run["created_at"],
+        "updated_at": run["updated_at"],
+    }
+
+
+@app.get("/runs/{run_id}/hotspots")
+def get_run_hotspots(run_id: str, limit: int = 100, offset: int = 0):
+    """List hotspots discovered for a run."""
+    try:
+        from packages.evidence.repository import list_hotspots
+        with connect() as conn:
+            rows = list_hotspots(conn, run_id=run_id, limit=min(max(limit, 1), 200), offset=max(offset, 0))
+        return {"run_id": run_id, "hotspots": rows, "count": len(rows)}
+    except Exception:
+        return {"run_id": run_id, "hotspots": [], "count": 0}
+
+
+@app.get("/runs/{run_id}/slices")
+def get_run_slices(run_id: str, limit: int = 100, offset: int = 0):
+    """List repair slices for a run."""
+    try:
+        from packages.evidence.repository import list_slices
+        with connect() as conn:
+            rows = list_slices(conn, run_id=run_id, limit=min(max(limit, 1), 200), offset=max(offset, 0))
+        return {"run_id": run_id, "slices": rows, "count": len(rows)}
+    except Exception:
+        return {"run_id": run_id, "slices": [], "count": 0}
+
+
+@app.get("/runs/{run_id}/validation")
+def get_run_validation(run_id: str):
+    """Get validation results (build/test/clippy/fmt) for a run."""
+    try:
+        from packages.repair.repository import list_validation_results, get_validation_summary
+        with connect() as conn:
+            results = list_validation_results(conn, run_id=run_id)
+            summary = get_validation_summary(conn, run_id=run_id)
+        return {"run_id": run_id, "results": results, "summary": summary}
+    except Exception:
+        return {"run_id": run_id, "results": [], "summary": {}}
+
+
+@app.get("/runs/{run_id}/patches")
+def get_run_patches(run_id: str):
+    """List patches and rollbacks for a run."""
+    with connect() as conn:
+        with conn.cursor(row_factory=psycopg.rows.dict_row) as cur:
+            cur.execute(
+                "SELECT patch_id, file_path, unified_diff, status, error_msg, created_at FROM patches WHERE run_id = %s ORDER BY created_at ASC;",
+                (run_id,),
+            )
+            patches = cur.fetchall()
+
+    rollbacks: list[dict] = []
+    try:
+        from packages.repair.repository import list_rollbacks
+        with connect() as conn:
+            rollbacks = list_rollbacks(conn, run_id=run_id)
+    except Exception:
+        pass
+
+    return {"run_id": run_id, "patches": patches, "rollbacks": rollbacks}
+
+
+@app.get("/runs/{run_id}/metrics")
+def get_run_metrics_endpoint(run_id: str):
+    """Get all metrics for a run, separated into engineering and evaluation."""
+    with connect() as conn:
+        with conn.cursor(row_factory=psycopg.rows.dict_row) as cur:
+            cur.execute("SELECT key, value_json FROM metrics WHERE run_id = %s ORDER BY key;", (run_id,))
+            rows = cur.fetchall()
+
+    all_metrics = {str(r["key"]): r["value_json"] for r in (rows or [])}
+
+    # Split into engineering vs evaluation
+    eng_keys = {"retrieve_ms", "generate_ms", "validate_ms", "build_ms", "test_ms", "total_ms",
+                "iteration_count", "patch_rounds", "rollback_count", "no_progress_count"}
+    eval_keys = {"compile_ok_before", "compile_ok_after", "test_ok_before", "test_ok_after",
+                 "lint_ok_before", "lint_ok_after", "fmt_ok_before", "fmt_ok_after",
+                 "unsafe_block_count_before", "unsafe_block_count_after",
+                 "raw_ptr_count_before", "raw_ptr_count_after",
+                 "unsafe_api_count_before", "unsafe_api_count_after",
+                 "manual_mem_call_count_before", "manual_mem_call_count_after",
+                 "patch_size_lines", "progress_score_history",
+                 "final_stop_reason", "primary_error_kind"}
+
+    engineering = {k: v for k, v in all_metrics.items() if k in eng_keys}
+    evaluation = {k: v for k, v in all_metrics.items() if k in eval_keys}
+    other = {k: v for k, v in all_metrics.items() if k not in eng_keys and k not in eval_keys}
+
+    return {
+        "run_id": run_id,
+        "engineering": engineering,
+        "evaluation": evaluation,
+        "other": other,
+    }
+
+
+@app.get("/runs/{run_id}/steps")
+def get_run_steps(run_id: str):
+    """Get FSM step timeline for a run."""
+    with connect() as conn:
+        with conn.cursor(row_factory=psycopg.rows.dict_row) as cur:
+            cur.execute(
+                """
+                SELECT step_id, step_name, ok, error_msg,
+                       input_json->>'iter' AS iteration,
+                       output_json->>'elapsed_ms' AS elapsed_ms,
+                       created_at
+                FROM agent_steps
+                WHERE run_id = %s
+                ORDER BY created_at ASC;
+                """,
+                (run_id,),
+            )
+            steps = cur.fetchall()
+    return {"run_id": run_id, "steps": steps, "count": len(steps)}
+
+
+@app.get("/compare")
+def get_compare(baseline_run_id: str, enhanced_run_id: str):
+    """Compare baseline vs enhanced run metrics."""
+    try:
+        from packages.metrics.repository import compare_baseline
+        with connect() as conn:
+            # Get project info from runs
+            with conn.cursor(row_factory=psycopg.rows.dict_row) as cur:
+                cur.execute("SELECT repo_url, ref FROM agent_runs WHERE run_id = %s;", (baseline_run_id,))
+                baseline_run = cur.fetchone()
+            if not baseline_run:
+                return json_error(status_code=404, error="baseline_run_not_found", code="not_found")
+
+            result = compare_baseline(
+                conn,
+                project=str(baseline_run.get("repo_url") or ""),
+                snapshot_id=0,
+                baseline_run_id=baseline_run_id,
+                enhanced_run_id=enhanced_run_id,
+            )
+        return {
+            "project": result.project,
+            "baseline": {
+                "run_id": result.baseline_run_id,
+                "compile_ok": result.baseline_compile_ok,
+                "test_ok": result.baseline_test_ok,
+                "unsafe_blocks": result.baseline_unsafe_blocks,
+                "raw_ptr_count": result.baseline_raw_ptr_count,
+                "total_ms": result.baseline_total_ms,
+            },
+            "enhanced": {
+                "run_id": result.enhanced_run_id,
+                "compile_ok": result.enhanced_compile_ok,
+                "test_ok": result.enhanced_test_ok,
+                "unsafe_blocks": result.enhanced_unsafe_blocks,
+                "raw_ptr_count": result.enhanced_raw_ptr_count,
+                "total_ms": result.enhanced_total_ms,
+                "iterations": result.enhanced_iterations,
+                "rollbacks": result.enhanced_rollbacks,
+                "stop_reason": result.enhanced_stop_reason,
+            },
+            "delta": {
+                "unsafe_blocks": result.unsafe_blocks_delta,
+                "raw_ptr": result.raw_ptr_delta,
+                "unsafe_api": result.unsafe_api_delta,
+            },
+        }
+    except Exception as e:
+        logger.exception(json.dumps({"event": "error", "endpoint": "compare"}))
+        return json_error(status_code=500, error="compare_failed", code="internal_error")
+
+
+@app.get("/projects/{project_id}")
+def get_project(project_id: int):
+    """Get a single project with snapshot count and run count."""
+    from crud import get_project as _get_project
+    with connect() as conn:
+        proj = _get_project(conn, project_id=project_id)
+        if not proj:
+            return json_error(status_code=404, error="not_found", code="not_found")
+
+        with conn.cursor(row_factory=psycopg.rows.dict_row) as cur:
+            cur.execute("SELECT COUNT(*) AS cnt FROM repo_snapshots WHERE project_id = %s;", (project_id,))
+            snap_count = int((cur.fetchone() or {}).get("cnt") or 0)
+
+    return {**dict(proj), "snapshot_count": snap_count}
+
+
+@app.get("/runs")
+def list_runs(limit: int = 50, offset: int = 0):
+    """List all runs with summary metrics."""
+    with connect() as conn:
+        with conn.cursor(row_factory=psycopg.rows.dict_row) as cur:
+            cur.execute(
+                """
+                SELECT ar.run_id, ar.repo_url, ar.ref, ar.task_description,
+                       ar.status, ar.created_at, ar.updated_at
+                FROM agent_runs ar
+                ORDER BY ar.created_at DESC
+                LIMIT %s OFFSET %s;
+                """,
+                (min(max(limit, 1), 200), max(offset, 0)),
+            )
+            runs = cur.fetchall()
+
+        # Batch-fetch key metrics
+        run_ids = [str(r["run_id"]) for r in runs]
+        metrics_by_run: dict[str, dict] = {rid: {} for rid in run_ids}
+        if run_ids:
+            with conn.cursor(row_factory=psycopg.rows.dict_row) as cur:
+                cur.execute(
+                    """
+                    SELECT run_id, key, value_json FROM metrics
+                    WHERE run_id = ANY(%s::uuid[])
+                    AND key IN ('mode', 'final_status', 'final_stop_reason', 'iteration_count', 'total_ms', 'rollback_count');
+                    """,
+                    (run_ids,),
+                )
+                for row in cur.fetchall():
+                    rid = str(row["run_id"])
+                    metrics_by_run.setdefault(rid, {})[str(row["key"])] = row["value_json"]
+
+    result = []
+    for r in runs:
+        rid = str(r["run_id"])
+        m = metrics_by_run.get(rid, {})
+        result.append({
+            **dict(r),
+            "mode": m.get("mode"),
+            "final_status": m.get("final_status"),
+            "final_stop_reason": m.get("final_stop_reason"),
+            "iteration_count": m.get("iteration_count"),
+            "total_ms": m.get("total_ms"),
+            "rollback_count": m.get("rollback_count"),
+        })
+    return result

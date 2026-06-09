@@ -16,7 +16,7 @@ class ApplyResult:
 
 
 _RE_FILE_HEADERS = re.compile(r"^(---|\+\+\+) (a|b)/(.+)$", re.MULTILINE)
-_RE_HUNK = re.compile(r"^@@ -(\d+),(\d+) \+(\d+),(\d+) @@\s*$", re.MULTILINE)
+_RE_HUNK = re.compile(r"^@@ -(\d+),(\d+) \+(\d+),(\d+) @@[ \t]*$", re.MULTILINE)
 
 
 def _extract_paths(unified_diff: str) -> list[str]:
